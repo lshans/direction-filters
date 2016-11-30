@@ -1,24 +1,28 @@
-%% 对滤波器的处理,双立方插值法
 function E = FilterToPicture(I, K, L)
+% 使用双立方插值法对滤波器旋转从而得到不同方向的滤波器，I是待滤波的原始图像，K是支撑域的斜率，L是旋转方向滤波器的角度，10 * L表示角度
 % close all;clear all;clc;
 [M, N] = size(I);
-gap = 5;
-% L = 17;
-% I = imread('C:\Users\Administrator\Downloads\Compressed\06538707Polar-Fourier-Transform\Polar Fourier Transform\lena.tif');
-[I, revertclass] = tofloat(I);
+gap = 5;    % mesh显示时的间隔
+% [I, revertclass] = tofloat(I);    % 处理不同数值类型的图像
 F_I = fft2(I);
+F_I = fftshift(F_I);    % 滤波器已经是平移过后的，所以图像要相同处理
+
+%% 1. 构造滤波器的频域特性，并加窗
 [f1, f2] = freqspace([M N], 'meshgrid');
 % 构造滤波器，频域特性
 Hd = ones(M, N);
 % K = 10; % 方向斜率
 angle_support = 2 * atan(1 / K) * 180 / pi;
+% 生成平行四边形的支撑域
 % Hd((K * f1 + f2 <= -1/2) | (K * f1 + f2 >= 1/2)| (-v * f1 + f2 <= -1/2) | (-K * f1 + f2 >= 1/2)) = 0;
+% 生成楔形滤波器的支撑域
 Hd(((K * f1 - f2 < 0) & (K * f1 + f2 < 0)) | ((K * f1 - f2 > 0) & (K * f1 + f2 > 0))) = 0;
 % % figure, mesh(f1, f2, Hd), title('Hd');
 
 % 加窗
 h3 = fwind1(Hd, hanning(N));
 % % figure, imshow(h3, []), title('h3');
+% 由时域冲击响应得到频域的系统函数，N和M表示 M x N大小的滤波器，由于是时域是循环卷积，注意生成滤波器要和图像一致，才可以在频域直接阵列乘法
 H = freqz2(h3, N, M); 
 % title('观察滤波器的频域特性, freqz2, H');
 
@@ -39,4 +43,4 @@ I_H_filter_int8 = int8(I_H_filter);
 % % mesh(I_H_filter_int8(1:gap:N, 1:gap:N)); title('filtered picture');
 %计算滤波后频谱能量
 A = abs(I_H_filter);
-E = sum(A(:).^2
+E = sum(A(:).^2);
