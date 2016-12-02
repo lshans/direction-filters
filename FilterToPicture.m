@@ -1,8 +1,8 @@
 function E = FilterToPicture(I, K, L)
-% 使用双立方插值法对滤波器旋转从而得到不同方向的滤波器，I是待滤波的原始图像，K是支撑域的斜率，L是旋转方向滤波器的角度，10 * L表示角度
+% 使用双立方插值法对滤波器旋转从而得到不同方向的滤波器，E是当前滤波器对图像滤波后的频谱能量，I是待滤波的原始图像，K是支撑域的斜率，L是旋转方向滤波器的角度，10 * L表示角度
 % close all;clear all;clc;
 [M, N] = size(I);
-gap = 5;    % mesh显示时的间隔
+
 % [I, revertclass] = tofloat(I);    % 处理不同数值类型的图像
 F_I = fft2(I);
 F_I = fftshift(F_I);    % 滤波器已经是平移过后的，所以图像要相同处理
@@ -27,9 +27,11 @@ H = freqz2(h3, N, M);
 % title('观察滤波器的频域特性, freqz2, H');
 
 % 滤波器的频域图像
-% HS = 20 * log10(abs(H) + 1); 
-% Wx = linspace(-pi,pi/16,pi); Wy = linspace(-pi,pi/16,pi);
+gap = 1;    % mesh显示时的间隔
+HS = 20 * log10(abs(H) + 1); 
+Wx = linspace(-pi,pi/16,pi); Wy = linspace(-pi,pi/16,pi);
 % figure, mesh(HS(1:gap:N, 1:gap:N)), title('mesh HS');
+% % figure, imshow(HS, []);title('imshow HS')
 
 
 %% 2. 三立方插值将滤波器频谱旋转一定角度，得到对应L的方向滤波器
@@ -40,10 +42,10 @@ H = freqz2(h3, N, M);
 % H_rotate = imrotate(H, L * angle_support,'bicubic','crop'); 
 H_rotate = imrotate(H, L * 10,'bicubic','crop'); 
 % figure, mesh(H_rotate(1:gap:N, 1:gap:N)); title('cubic rotate');
-
+% % figure, imshow(H_rotate, []);title('imshow H_rotate')
 %% 3. 频域相乘，实现滤波
 I_H_filter = H_rotate .* F_I;
-I_H_filter_int8 = int8(I_H_filter);
+% I_H_filter_int8 = uint8(I_H_filter);
 % % mesh(I_H_filter_int8(1:gap:N, 1:gap:N)); title('filtered picture');
 
 %% 4. 计算滤波后频谱能量，傅里叶变换后的傅里叶变换系数的平方和，作为频谱能量
