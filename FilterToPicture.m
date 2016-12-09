@@ -1,4 +1,4 @@
-function E = FilterToPicture(I, K, L)
+function [I_H_filter, E] = FilterToPicture(I, K, L)   % g_filtered 逆滤波后的时域图像， E频域滤波后的频谱能量
 % 使用双立方插值法对滤波器旋转从而得到不同方向的滤波器，E是当前滤波器对图像滤波后的频谱能量，I是待滤波的原始图像，K是支撑域的斜率，L是旋转方向滤波器的角度，10 * L表示角度
 % close all;clear all;clc;
 [M, N] = size(I);
@@ -47,7 +47,6 @@ H_rotate = imrotate(H, L * 10,'bicubic','crop');
 I_H_filter = H_rotate .* F_I;
 % I_H_filter_int8 = uint8(I_H_filter);
 % % mesh(I_H_filter_int8(1:gap:N, 1:gap:N)); title('filtered picture');
-
 %% 4. 计算滤波后频谱能量，傅里叶变换后的傅里叶变换系数的平方和，作为频谱能量
 A = abs(I_H_filter);
 E = sum(A(:).^2);

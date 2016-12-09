@@ -8,9 +8,9 @@ dbstop if error
 % 加载19个方向0, 10, ....180，以及尺寸sample_img_size
 load('ImgArrCrop.mat');
 % 样本图像块的大小
-block_size = 32;
+block_size = 64;
 % 40度
-angle_index = 7;
+angle_index = 5;
 I = ImgArrCrop(sample_img_size / 2 - block_size / 2 + 1 : sample_img_size / 2 + block_size / 2 , sample_img_size / 2 - block_size / 2 + 1 : sample_img_size / 2 + block_size / 2, angle_index);
 % figure(51), subplot(2, 2, 1), imshow(I); title(['显示原图 uint8, ', num2str(angle_index)]);
 [f, revertclass] = tofloat(I);
@@ -42,6 +42,7 @@ figure(51), subplot(2, 2, 2), imshow(g); title('reverclass');
 % 去掉图像的四周，尺寸缩放
 g = g(block_size / 4 + 1: block_size * 3 / 4, block_size / 4 + 1: block_size * 3 / 4);
 figure(51), subplot(2, 2, 3), imshow(g); title('reverclass');
+
 %% 5. 方向滤波器滤波
 % 频谱支撑域大小
 K = 3;

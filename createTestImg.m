@@ -51,6 +51,7 @@ end
 
 %ImgArrCrop = zeros(create_size / 2, create_size / 2, 19);
 ImgArrCrop = ImgArr(create_size / 4 + 1: create_size * 3 / 4, create_size / 4 + 1: create_size * 3 / 4, :);
+
 for i = 1:19
     % figure, imshow(ImgArrCrop(:, :, i));
 end

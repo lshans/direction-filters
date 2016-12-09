@@ -1,7 +1,3 @@
-% function 
-% I = imread('C:\Users\Administrator\Downloads\Compressed\06538707Polar-Fourier-Transform\Polar Fourier Transform\lena.tif');
-% I_rgb = load('C:\Users\Administrator\Downloads\Compressed\06538707Polar-Fourier-Transform\I8.mat');
-% IGray = rgb2gray(I_rgb.I8);
 clear all;
 close all;
 clc;
@@ -19,21 +15,21 @@ img = fread(fp, [M, N],'uint8'); % 按照列的顺序将输入图像读成512 x 512 的矩阵
 img = uint8(img);
 fclose(fp);
 % 分块尺寸以及分块数目
-block_r_size = 32; block_c_size = 32; blocknum_r = M / block_r_size; blocknum_c = N / block_c_size;
+block_r_size = 8; block_c_size = 8; blocknum_r = M / block_r_size; blocknum_c = N / block_c_size;
 % 统一尺寸
 I = img(1:M, 1:N);
 I = I';  %读入的图像是按列存储到矩阵I中的， 所以对 I 进行转置
 figure, imshow(I);
 %% 对输入图像进行高通滤波处理
 % highpass filter
-% H = fftshift(hpfilter('ideal', M, N, 50));
-% figure, mesh(double(H(1:10:M, 1:10:N)));
-% axis tight
-% colormap([0 0 0])
-% axis off
-% I_hlpfilter = ifft2(fft2(I_inverse).*H);
-% I_hlpfilter = uint8(I_hlpfilter);
-% figure, imshow(I_hlpfilter);
+H = hpfilter('gaussian', M, N, 10);
+figure, mesh(double(H(1:10:M, 1:10:N)));
+axis tight
+colormap([0 0 0])
+axis off
+I_hlpfilter = ifft2(fft2(I).*H);
+I_hlpfilter = uint8(I_hlpfilter);
+figure, imshow(I_hlpfilter);
 %% 将读入的图像数据分成块进行滤波处理
 E = cell(blocknum_r, blocknum_c);
 for r = 0 : blocknum_r - 1

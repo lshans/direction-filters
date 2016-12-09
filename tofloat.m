@@ -3,7 +3,7 @@ function [out, revertclass] = tofloat(in)
 % [OUT, REVERTCLASS] = TOFLOAT(IN) converts the input image IN to floating-point. If IN is a double or single image, 
 % then OUT equals IN. Otherwise, OUT equals IM2SINGLE(IN). REVERTCLASS is a
 % function handle that can be used to convert back to the class of IN.
-identity = @(x) x;
+identity = @(x)x;
 tosingle = @im2single;
 table = {'uint8', tosingle, @im2uint8
     'uint16', tosingle, @im2uint16
