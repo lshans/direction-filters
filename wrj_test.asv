@@ -9,9 +9,9 @@ dbstop if error
 load('ImgArrCrop.mat');
 ImgArrCrop = im2uint8(ImgArrCrop);
 %   样本图像块的大小
-block_size = 8;
+block_size = 16;
 % 40度
-angle_index = 4;
+angle_index = 3;
 I = ImgArrCrop(sample_img_size / 2 - block_size / 2 + 1 : sample_img_size / 2 + block_size / 2 , sample_img_size / 2 - block_size / 2 + 1 : sample_img_size / 2 + block_size / 2, angle_index);
 % figure(51), subplot(2, 2, 1), imshow(I); title(['显示原图 uint8, ', num2str(angle_index)]);
 [f, revertclass] = tofloat(I);
@@ -51,18 +51,18 @@ figure(51), subplot(2, 2, 3), imshow(g); title('reverclass');
 
 %% 5. 方向滤波器滤波
 % 频谱支撑域大小
-K = 3;
+K = 1;
 % 变换的角度的个数
 L = 18; 
 % 各个方向的滤波频谱系数总和
 E = zeros(L,  1);
 % Grad = cell(block_size / 2, block_size / 2);
-fft2_M = 128; fft2_N = 128;   % fft2的点数
+fft2_M = 32, fft2_N = 32;   % fft2的点数
 for i = 0:L - 1
     [g_filtered, E(i + 1)] = FilterToPicture(g, K, i, fft2_M, fft2_N);
     [EMax, filter_primer_direction_index] = max(E);
 end
-FilterToPicture(g, K, mod(angle_index + 9 - 1, 18), fft2_M, fft2_N);
+FilterToPicture(g, K, mod(angle_index + 9 - 1, 18));
 %% sobel 算子计算梯度
 [pixel_number_gauss, pimer_direction_index_gauss, Gdir_gauss] = SobelFilter(g);
 [pixel_number_origin, pimer_direction_index_origin, Gdir_origin] = SobelFilter(I_crop);

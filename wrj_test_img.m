@@ -3,12 +3,13 @@ close all;
 clc;
 
 %% 1. 载入图像
-fp = fopen('C:\Users\Administrator\Downloads\Compressed\06538707Polar-Fourier-Transform\barbara.raw', 'r');
+fp = fopen('E:\项目\毕设预测\directionFilterProject\barbara.raw', 'r');
 M = 512; N = 512;
 img = fread(fp, [M, N],'uint8'); % 按照列的顺序将输入图像读成512 x 512 的矩阵
 img = uint8(img');
 fclose(fp);
 I = img(129:384, 129:384); %裁取部分图像
+I = I(197:200, 201:204);
 figure(1), imshow(I);
 % I = imread('C:\Users\Administrator\Downloads\Compressed\06538707Polar-Fourier-Transform\Polar Fourier Transform\lena.tif');
 [img_height, img_width] = size(I);
@@ -27,7 +28,7 @@ F_I = fft2(I, PQ(1), PQ(2));
 figure(62), subplot(2, 2, 1), imshow(log(abs(fftshift(F_I)) + 1), []); title('log和fftshift后的F');
 
 %% 2. 创建高通滤波器
-D0 = 0.013 * PQ(1); % 0.015 for barbara.raw by lss ,边缘纹理比较全，比较明显.0.013for lena.raw
+D0 = 0.015 * PQ(1); % 0.015 for barbara.raw by lss ,边缘纹理比较全，比较明显.0.013for lena.raw
 H = hpfilter('gaussian', PQ(1), PQ(2), D0);
 figure(62), subplot(2, 2, 2), imshow(log(abs(fftshift(H)) + 1), []); title('log和fftshift后的H');
 
@@ -47,27 +48,33 @@ figure(61), subplot(2, 2, 2), imshow(g); title('reverclass');
 % g_revertclass_I = g + revertclass(f);
 % figure(63),imshow(g_revertclass_I);
 %% 5. 分块处理
+fft_M = 128; fft_N = 128;
 E = cell(block_height_num, block_width_num);
-Grad = cell(block_height_num, block_width_num);
+Grad_origin = cell(block_height_num, block_width_num);
+Grad_gauss = cell(block_height_num, block_width_num);
 % 逆滤波后的原图数据矩阵
 G = zeros(size(I), 'uint8');
 same_block_count = 0;
 unsame_block_count = 0;
 for r = 0 : block_height_num - 1
     for c = 0: block_width_num - 1
-        I_block = g(r * block_height + 1 : (r + 1) * block_height, c * block_width + 1 : (c + 1) * block_width);
-        figure(63), imshow(I_block);
-        [g_pimer_direction_filtered, EMax, index_max] = deblock_filter(I_block);
+       %% 方向滤波器 by lss
+        I_gauss_block = g(r * block_height + 1 : (r + 1) * block_height, c * block_width + 1 : (c + 1) * block_width);
+        figure(51), subplot(2, 2, 1), imshow(I_gauss_block); title('时域图像块');
+        [g_pimer_direction_filtered, EMax, index_max] = deblock_filter(I_gauss_block, fft_M, fft_N);
         E{r + 1, c + 1} = [EMax, index_max];
         G(r * block_height + 1 : (r + 1) * block_height, c * block_width + 1 : (c + 1) * block_width) = g_pimer_direction_filtered;
         fprintf('处理完第(%d, %d)行的图像块\n', r, c);
-        % sobel 梯度计算方法得到的主方向
-        [pixel_number, pimer_direction_index, Gdir] = SobelFilter(I_block);
-        Grad{r + 1, c + 1} = [pixel_number, pimer_direction_index];
-        % 统计两种方法的方向是否一致
-        transport_pimer_direction_index = mod(mod(pimer_direction_index + 9, 37) + 1, 19) + 1;
+        %% sobel 梯度计算方法得到的主方向
+        I_origin_block = I(r * block_height + 1 : (r + 1) * block_height, c * block_width + 1 : (c + 1) * block_width);
+        [pixel_number_origin, pimer_direction_index_origin, Gdir_origin] = SobelFilter(im2uint8(I_origin_block));
+        Grad_origin{r + 1, c + 1} = [pixel_number_origin, pimer_direction_index_origin];
+        [pixel_number_gauss, pimer_direction_index_gauss, Gdir_gauss] = SobelFilter(I_gauss_block);
+        Grad_gauss{r + 1, c + 1} = [pixel_number_gauss, pimer_direction_index_gauss];
+        %% 统计两种方法的方向是否一致
+        transport_pimer_direction_index = mod(mod(pimer_direction_index_gauss + 9, 37) + 1, 19) + 1;
         % index_max == (transport_pimer_direction_index) 
-        if (mod(index_max, 19) + 1) == (transport_pimer_direction_index)
+        if (index_max) == (transport_pimer_direction_index)
             same_block_count = same_block_count + 1;
         else
             unsame_block_count = unsame_block_count + 1;

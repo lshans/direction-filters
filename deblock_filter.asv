@@ -1,4 +1,6 @@
-function [g_pimer_direction_filtered, EMax, index_max] = deblock_filter(I)
+function [g_pimer_direction_filtered, EMax, index_max] = deblock_filter(I, fft_M, fft_N)
+%%  I输入图像, g_pimer_direction_filtered 输入图像逆滤波后的时域图像, EMax 图像主方向的频谱能量, index_max 频谱能量最大对应的滤波器方向
+%%  fft_M,  fft_N 傅里叶变换的点数
 % I = imread('C:\Users\Administrator\Downloads\Compressed\06538707Polar-Fourier-Transform\Polar Fourier Transform\lena.tif');
 % I_rgb = load('C:\Users\Administrator\Downloads\Compressed\06538707Polar-Fourier-Transform\I8.mat');
 % IGray = rgb2gray(I_rgb.I8);
@@ -16,11 +18,11 @@ function [g_pimer_direction_filtered, EMax, index_max] = deblock_filter(I)
 
 %% 2. 使用间隔10度的方向滤波器滤波，并得到每个方向的频谱能量
 % i = 0:L表示0,10, ..., 180，19个方向
-K = 12; % 频谱支撑域斜率
+K = 5; % 频谱支撑域斜率
 L = 35;
 E = zeros(L + 1, 1);
 for i = 0:35
-    [H_filter, E_direction] = FilterToPicture(I, K, i);
+    [H_filter, E_direction] = FilterToPicture(I, K, i, fft_M, fft_N);
     E(i + 1) = E_direction;
 end
 [EMax, index_max] = max(E);
@@ -28,20 +30,22 @@ end
 E_total = sum(E(:));  %各个方向滤波器频谱能量总和
 E_avg = E_total / (L + 1);  %各方向的平均频谱能量
 Threshold = 0;     %纹理判断的阈值
-if  ((E_total == 0) | ((EMax / E_avg) < Threshold))
+if  ((E_total == 0) || ((EMax / E_avg) < Threshold))
     is_texture = false;
 else
     is_texture = true;
 end
 %% 3.对子块进行频谱能量最大的方向滤波器的滤波，及逆滤波得到时域图像
 if is_texture == true
-    [H_filter, EMax] = FilterToPicture(I, K, index_max);
-    g_pimer_direction_filtered = InverseFilter(H_filter);
+    [H_filter, EMax] = FilterToPicture(I, K, index_max, fft_M, fft_N);
+    InverseFilter(H_filter, fft_M, fft_N)
+    g_pimer_direction_filtered = InverseFilter(H_filter, fft_M, fft_N);
+    g_pimer_direction_filtered = g_pimer_direction_filtered(1:4, 1:4);
 else
     H_filter = zeros(size(I));
-    g_pimer_direction_filtered = InverseFilter(H_filter);
+    g_pimer_direction_filtered = InverseFilter(H_filter, fft_M, fft_N);
 end
 %% 4. 绘制 滤波后归一化的频谱能量条形图，从0, 10, 20, ..., 180共19列
 settings.ymin = 0;
 [E_normalization,settings] = mapminmax(E',settings);
-% figure(16), bar(E_normalization'); title('滤波后归一化的频谱能量条形图0, 10, 20, ..., 180');
+figure(41), subplot(2, 2, 3), bar(E_normalization'); title('滤波后归一化的频谱能量条形图0, 10, 20, ..., 170');
