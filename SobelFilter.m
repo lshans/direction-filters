@@ -22,15 +22,20 @@ N = 360 / quantization_angle_step; % 总共量化到1`32 之间
 Gdir_quantization = mod(ceil(((Gdir + 180) - quantization_angle_step / 2) / quantization_angle_step), N) + 1;
 Gdir_quantization(l) = -1;
 % all 判断矩阵是否是全零矩阵，如果不是则为真，执行if语句
-if all(Gdir_quantization + 1)
+  if  (~all(Gdir_quantization(:) == -1))
     TABLE = tabulate(Gdir_quantization(:));  %统计各元素出现次数, 百分比
     TABLE = TABLE(2:end,:);     % 把统计出来的-1那一列（平滑区域）过滤掉
 % [pixel_number, pimer_direction_index] = max(TABLE(:,2)); % 统计出现次数最多的元素以及其下标
     TABLE_sorted = sortrows(TABLE, 2); % 按照第二列由小到大重排矩阵
     max_line = TABLE_sorted(end, :); %取出最后一行的值，代表着主方向，以及主方向的像素总个数
     pixel_number = max_line(2);
-    pimer_direction = max_line(1);
-end
-pixel_number = block_height * block_width;
-pimer_direction = -1;
+    if pixel_number < 3
+        pimer_direction  = -1;
+    else
+        pimer_direction = max_line(1);
+    end
+  else
+    pixel_number = block_height * block_width;
+    pimer_direction = -1;
+  end
 end

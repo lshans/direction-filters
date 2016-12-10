@@ -1,13 +1,13 @@
 % TODO：函数名，多于的注释，M和N可以忽略掉一个
-function [I_H_filter, E] = FilterToPicture(I, K, L, M, N)   % g_filtered 逆滤波后的时域图像， E频域滤波后的频谱能量
-% 使用双立方插值法对滤波器旋转从而得到不同方向的滤波器，E是当前滤波器对图像滤波后的频谱能量，I是待滤波的原始图像，K是支撑域的斜率，L是旋转方向滤波器的角度，10 * L表示角度
+function [I_H_filter, E] = FilterToPicture(I, K, rotate_angle, M, N)   % g_filtered 逆滤波后的时域图像， E频域滤波后的频谱能量
+% 使用双立方插值法对滤波器旋转从而得到不同方向的滤波器，E是当前滤波器对图像滤波后的频谱能量，I是待滤波的原始图像，K是支撑域的斜率，rotate_angle是由竖直方向逆时针旋转楔形方向滤波器的角度
 % M和N是对I需要做[M x N]点的fft2
 
 % TODO 测试I的类型，是否有必要添加tofloat
 % m x n点的fft2，比直接使用fft2效果强
 F_I = fft2(I, M, N);
 F_I = fftshift(F_I);    % 滤波器已经是平移过后的，所以图像要相同处理
-figure(41), subplot(2, 2, 2), imshow(F_I, []), title(['滤波器的输入图像的频谱，', num2str(M), '点的FFT2']);
+figure(73), subplot(2, 3, 3), imshow(F_I, []), title(['滤波器的输入图像的频谱，', num2str(M), '点的FFT2']);
 
 %% 1. 构造滤波器的频域特性，并加窗
 [f1, f2] = freqspace([M N], 'meshgrid');
@@ -40,10 +40,9 @@ Wx = linspace(-pi,pi/16,pi); Wy = linspace(-pi,pi/16,pi);
 % 将图像A（图像的数据矩阵）绕图像的中心点旋转angle度， 正数表示逆时针旋转， 负数表示顺时针旋转。返回旋转后的图像矩阵。
 % B = imrotate(A,angle,method,bbox),bbox参数用于指定输出图像属性：
 % 'crop'： 通过对旋转后的图像B进行裁剪， 保持旋转后输出图像B的尺寸和输入图像A的尺寸一样。
-% 'loose'： 使输出图像足够大， 以保证源图像旋转后超出图像尺寸范围的像素值没有丢失。 一般这种格式产生的图像的尺寸都要大于源图像的尺寸。
-% H_rotate = imrotate(H, L * angle_support,'bicubic','crop'); 
-% TODO 10
-H_rotate = imrotate(H, L * 10,'bicubic','crop'); 
+% 'loose'： 使输出图像足够大， 以保证源图像旋转后超出图像尺寸范围的像素值没有丢失。 一般这种格式产生的图像的尺寸都要大于源图像的尺寸。 
+
+H_rotate = imrotate(H, rotate_angle,'bicubic','crop'); 
 % figure, mesh(H_rotate(1:gap:N, 1:gap:N)); title('cubic rotate');
 figure(41), subplot(2, 2, 1), imshow(H_rotate, []);title('H_rotate')
 
