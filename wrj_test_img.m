@@ -14,36 +14,17 @@ figure(72), subplot(2, 3, 1), imshow(I), title(['I ', num2str(size(I))]);
 % I = imread('C:\Users\Administrator\Downloads\Compressed\06538707Polar-Fourier-Transform\Polar Fourier Transform\lena.tif');
 [img_height, img_width] = size(I);
 
-block_height = 4; block_width = 4;
+block_height = 32; block_width = 32;
 block_height_num = img_height / block_height;
 block_width_num = img_width / block_width;
 
 % 转换成浮点型
-[f, revertclass] = tofloat(I);
+% [f, revertclass] = tofloat(I);
 % figure(61), subplot(2, 2, 1), imshow(f, []), title(['原始大图', sprintf('%d x %d', img_height, img_width)]);
+%% 2.对输入图像进行高通滤波
+% g = gauss_filter(I);
 
-% 填充图的FFT，不偏移
-PQ = paddedsize(size(I));   % 获取填充参数  
-F_I = fft2(f, PQ(1), PQ(2)); 
-figure(72), subplot(2, 3, 2), imshow(log(abs(fftshift(F_I)) + 1), []); title('log和fftshift后的F');
-
-%% 2. 创建高通滤波器
-D0 = 0.013 * PQ(1); % 0.015 for barbara.raw by lss ,边缘纹理比较全，比较明显.0.013for lena.raw
-H = hpfilter('gaussian', PQ(1), PQ(2), D0);
-figure(72), subplot(2, 3, 3), imshow(log(abs(fftshift(H)) + 1), []); title('log和fftshift后的高通滤波器H');
-
-%% 3. 滤波
-G = F_I .* H;
-g = ifft2(G);
-figure(72), subplot(2, 3, 4), imshow(log(abs(fftshift(G)) + 1), []); title('log和fftshift后的高通滤波后的频谱G');
-
-%% 4. IFFT
-% pad后需要裁剪取，左上角
-g = g(1:size(I, 1), 1:size(I, 2));
-g = revertclass(g);
-figure(72), subplot(2, 3, 5), imshow(g); title('g');
-
-%% 5. 分块处理
+%% 3. 分块处理
 fft_M = 128; fft_N = 128;   % fft2点的个数
 E = cell(block_height_num, block_width_num);    % 每个小块
 Grad_origin = cell(block_height_num, block_width_num);  % 原始图像利用sobel计算的梯度及方向信息
@@ -94,6 +75,6 @@ for r = 0 : block_height_num - 1
     end
 end
 
-%% 6.显示逆滤波后的时域图像
+%% 4.显示逆滤波后的时域图像
 figure(72), subplot(2, 3, 6), imshow(G), title('逆滤波后的图像');
 t = toc
