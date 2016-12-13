@@ -1,9 +1,10 @@
 function [various_block_cnt, flag] = direction_consistency_compare(EMax, wedge_shape_index, pimer_direction_index_gauss, various_block_cnt)
-load('E:\项目\lss_graduate_project\angle_10_diff_direction_matching.mat');
-load('E:\项目\lss_graduate_project\angle_20_diff_direction_matching.mat');
-load('E:\项目\lss_graduate_project\angle_30_diff_direction_matching.mat');
-load('E:\项目\lss_graduate_project\angle_40_diff_direction_matching.mat');
-load('E:\项目\lss_graduate_project\angle_samely_direction_matching.mat');
+load('.\angle_10_diff_direction_matching.mat'); 
+load('.\angle_20_diff_direction_matching.mat'); 
+load('.\angle_30_diff_direction_matching.mat'); 
+load('.\angle_40_diff_direction_matching.mat'); 
+load('.\angle_samely_direction_matching.mat');  
+
 % direction_matching = [[10	28	9	11	27	29	8	12	26	30]
 %                         [11	29	10	12	28	30	9	13	27	31]
 %                         [12	30	11	13	29	31	10	14	28	32]

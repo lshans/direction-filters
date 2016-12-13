@@ -2,7 +2,7 @@
 clear all; close all; clc;
 tic;
 %% 1. 载入图像
-fp = fopen('E:\项目\毕设预测\directionFilterProject\barbara.raw', 'r');
+fp = fopen('.\barbara.raw', 'r');
 M = 512; N = 512;
 img = fread(fp, [M, N],'uint8'); % 按照列的顺序将输入图像读成512 x 512 的矩阵
 img = uint8(img');
@@ -14,7 +14,7 @@ figure(72), subplot(2, 3, 1), imshow(I), title(['I ', num2str(size(I))]);
 % I = imread('C:\Users\Administrator\Downloads\Compressed\06538707Polar-Fourier-Transform\Polar Fourier Transform\lena.tif');
 [img_height, img_width] = size(I);
 
-block_height = 4; block_width = 4;
+block_height = 64; block_width = 64;
 block_height_num = img_height / block_height;
 block_width_num = img_width / block_width;
 
