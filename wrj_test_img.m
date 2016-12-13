@@ -2,7 +2,7 @@
 clear all; close all; clc;
 tic;
 %% 1. ÔØÈëÍ¼Ïñ
-fp = fopen('.\barbara.raw', 'r');
+fp = fopen('.\lena.raw', 'r');
 M = 512; N = 512;
 img = fread(fp, [M, N],'uint8'); % °´ÕÕÁĞµÄË³Ğò½«ÊäÈëÍ¼Ïñ¶Á³É512 x 512 µÄ¾ØÕó
 img = uint8(img');
@@ -14,7 +14,7 @@ figure(72), subplot(2, 3, 1), imshow(I), title(['I ', num2str(size(I))]);
 % I = imread('C:\Users\Administrator\Downloads\Compressed\06538707Polar-Fourier-Transform\Polar Fourier Transform\lena.tif');
 [img_height, img_width] = size(I);
 
-block_height = 64; block_width = 64;
+block_height = 4; block_width = 4;
 block_height_num = img_height / block_height;
 block_width_num = img_width / block_width;
 
@@ -28,7 +28,7 @@ F_I = fft2(f, PQ(1), PQ(2));
 figure(72), subplot(2, 3, 2), imshow(log(abs(fftshift(F_I)) + 1), []); title('logºÍfftshiftºóµÄF');
 
 %% 2. ´´½¨¸ßÍ¨ÂË²¨Æ÷
-D0 = 0.015 * PQ(1); % 0.015 for barbara.raw by lss ,±ßÔµÎÆÀí±È½ÏÈ«£¬±È½ÏÃ÷ÏÔ.0.013for lena.raw
+D0 = 0.013 * PQ(1); % 0.015 for barbara.raw by lss ,±ßÔµÎÆÀí±È½ÏÈ«£¬±È½ÏÃ÷ÏÔ.0.013for lena.raw
 H = hpfilter('gaussian', PQ(1), PQ(2), D0);
 figure(72), subplot(2, 3, 3), imshow(log(abs(fftshift(H)) + 1), []); title('logºÍfftshiftºóµÄ¸ßÍ¨ÂË²¨Æ÷H');
 
@@ -50,14 +50,14 @@ Grad_origin = cell(block_height_num, block_width_num);  % Ô­Ê¼Í¼ÏñÀûÓÃsobel¼ÆËãµ
 Grad_gauss = cell(block_height_num, block_width_num);   % ¸ßÍ¨vÂË²¨ºóµÄÍ¼ÏñÀûÓÃsobel¼ÆËãµÄÌİ¶È¼°·½ÏòĞÅÏ¢
 G = zeros(size(I), 'uint8');    % ÄæÂË²¨µÄÍ¼Ïñ£¬´óÍ¼
 
-various_block_cnt.smoothing_block_cnt = 0;  % Æ½»¬Í¼Ïñ¿é
-various_block_cnt.same_direction_block_cnt = 0;  % Á½ÖÖ·½·¨·½ÏòÏàÍ¬µÄĞ¡¿éÊı
-various_block_cnt.unsame_direction_block_cnt = 0; % ·½Ïò²»Í¬µÄ 
-various_block_cnt.nearly_direction_block_cnt = 0; % ·½Ïò½Ó½üµÄ£¬²î1
-various_block_cnt.different_two_direction_cnt = 0; % Ïà²îÁ½¸ö·½ÏòµÄ¿é 
-various_block_cnt.different_three_direction_cnt = 0; % Ïà²îÈı¸ö·½ÏòµÄ¿é
-various_block_cnt.different_four_direction_cnt = 0; % Ïà²îËÄ¸ö·½ÏòµÄ¿é
-
+% various_block_cnt.smoothing_block_cnt = 0;  % Æ½»¬Í¼Ïñ¿é
+% various_block_cnt.same_direction_block_cnt = 0;  % Á½ÖÖ·½·¨·½ÏòÏàÍ¬µÄĞ¡¿éÊı
+% various_block_cnt.unsame_direction_block_cnt = 0; % ·½Ïò²»Í¬µÄ 
+% various_block_cnt.nearly_direction_block_cnt = 0; % ·½Ïò½Ó½üµÄ£¬²î1
+% various_block_cnt.different_two_direction_cnt = 0; % Ïà²îÁ½¸ö·½ÏòµÄ¿é 
+% various_block_cnt.different_three_direction_cnt = 0; % Ïà²îÈı¸ö·½ÏòµÄ¿é
+% various_block_cnt.different_four_direction_cnt = 0; % Ïà²îËÄ¸ö·½ÏòµÄ¿é
+various_block_cnt_arr = zeros(11, 1);  %Í³¼ÆĞ¨ĞÎÂË²¨Æ÷ºÍsobelÁ½ÖÖ·½·¨µÃµ½µÄÖ÷·½ÏòÏà²î¸÷¸ö½Ç¶ÈµÄÍ¼Ïñ¿éÊıÄ¿£¬0~90¶ÈÖ®ÄÚ·Ö±ğ¼ÇÂ¼ÔÚµÚ1µ½10ĞĞ,×îºóÒ»ĞĞ¼ÇÂ¼Æ½»¬¿éµÄ¸öÊı
 Different_block = cell(block_height_num, block_width_num); %½«·½·¨²»Ò»ÖÂµÄÍ¼Ïñ¿éµÄÁ½ÖÖ·½Ïò¼ÇÂ¼ÏÂÀ´½øÒ»²½ÑéÖ¤
 % ·Ö¿é´¦Àí
 for r = 0 : block_height_num - 1
@@ -87,7 +87,7 @@ for r = 0 : block_height_num - 1
        %% TODO: ±È½Ï¹«Ê½´ıÈ·¶¨
         %Í³¼ÆÁ½ÖÖ·½·¨µÄ·½ÏòÊÇ·ñÒ»ÖÂ
 %         numberic_index = char(index_max) - '0';
-        [various_block_cnt, flag] = direction_consistency_compare(EMax, index_max, pimer_direction_index_gauss, various_block_cnt);
+        [various_block_cnt_arr, flag] = direction_consistency_compare(EMax, index_max, pimer_direction_index_gauss, various_block_cnt_arr);
         if flag == false
           Different_block{r + 1, c + 1} = [index_max, pimer_direction_index_gauss];
         end
