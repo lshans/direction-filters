@@ -22,7 +22,8 @@ block_width_num = img_width / block_width;
 % [f, revertclass] = tofloat(I);
 % figure(61), subplot(2, 2, 1), imshow(f, []), title(['原始大图', sprintf('%d x %d', img_height, img_width)]);
 %% 2.对输入图像进行高通滤波
-% g = gauss_filter(I);
+parameter_of_D0 = 0.013;
+g = gauss_filter(I, parameter_of_D0);
 
 %% 3. 分块处理
 fft_M = 128; fft_N = 128;   % fft2点的个数

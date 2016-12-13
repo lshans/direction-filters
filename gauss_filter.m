@@ -1,5 +1,5 @@
-function g = gauss_filter(I)
-%% 对输入图像进行高通滤波，I 是待滤波的输入图像， g 是逆滤波后的图像
+function g = gauss_filter(I, parameter_of_D0)
+%% 对输入图像进行高通滤波，I 是待滤波的输入图像， g 是逆滤波后的图像, parameter_of_D0 是高通滤波系数D0的系数
 % 转换成浮点型
 [f, revertclass] = tofloat(I);
 %% 1. 填充图的FFT，不偏移
@@ -8,7 +8,7 @@ F_I = fft2(f, PQ(1), PQ(2));
 figure(72), subplot(2, 3, 2), imshow(log(abs(fftshift(F_I)) + 1), []); title('log和fftshift后的F');
 
 %% 2. 创建高通滤波器
-D0 = 0.013 * PQ(1); % 0.015 for barbara.raw by lss ,边缘纹理比较全，比较明显.0.013for lena.raw
+D0 = parameter_of_D0 * PQ(1); % 0.015 for barbara.raw by lss ,边缘纹理比较全，比较明显.0.013for lena.raw
 H = hpfilter('gaussian', PQ(1), PQ(2), D0);
 figure(72), subplot(2, 3, 3), imshow(log(abs(fftshift(H)) + 1), []); title('log和fftshift后的高通滤波器H');
 
