@@ -11,6 +11,7 @@ Hd = ones(M, N);
 
 % 生成楔形滤波器的支撑域
 Hd(((K * f1 - f2 < 0) & (K * f1 + f2 < 0)) | ((K * f1 - f2 > 0) & (K * f1 + f2 > 0))) = 0;
+Hd = rot90(Hd);
 
 % 加窗
 h3 = fwind1(Hd, hanning(N));    % 生成窗

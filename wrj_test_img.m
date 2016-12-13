@@ -14,7 +14,7 @@ figure(72), subplot(2, 3, 1), imshow(I), title(['I ', num2str(size(I))]);
 % I = imread('C:\Users\Administrator\Downloads\Compressed\06538707Polar-Fourier-Transform\Polar Fourier Transform\lena.tif');
 [img_height, img_width] = size(I);
 
-block_height = 32; block_width = 32;
+block_height = 4; block_width = 4;
 block_height_num = img_height / block_height;
 block_width_num = img_width / block_width;
 
@@ -49,12 +49,16 @@ E = cell(block_height_num, block_width_num);    % 每个小块
 Grad_origin = cell(block_height_num, block_width_num);  % 原始图像利用sobel计算的梯度及方向信息
 Grad_gauss = cell(block_height_num, block_width_num);   % 高通v滤波后的图像利用sobel计算的梯度及方向信息
 G = zeros(size(I), 'uint8');    % 逆滤波的图像，大图
-same_direction_block_cnt = 0;           % 两种方法方向相同的小块数
-unsame_direction_block_cnt = 0;         % 方向不同的
-nearly_direction_block_cnt = 0;         % 方向接近的，差1
-smooothing_block_cnt = 0;               % 平滑图像块
-different_two_direction_cnt = 0;        % 相差两个方向的块
-Different_block = cell(block_height_num, block_width_num);
+
+various_block_cnt.smoothing_block_cnt = 0;  % 平滑图像块
+various_block_cnt.same_direction_block_cnt = 0;  % 两种方法方向相同的小块数
+various_block_cnt.unsame_direction_block_cnt = 0; % 方向不同的 
+various_block_cnt.nearly_direction_block_cnt = 0; % 方向接近的，差1
+various_block_cnt.different_two_direction_cnt = 0; % 相差两个方向的块 
+various_block_cnt.different_three_direction_cnt = 0; % 相差三个方向的块
+various_block_cnt.different_four_direction_cnt = 0; % 相差四个方向的块
+
+Different_block = cell(block_height_num, block_width_num); %将方法不一致的图像块的两种方向记录下来进一步验证
 % 分块处理
 for r = 0 : block_height_num - 1
     for c = 0: block_width_num - 1
@@ -82,28 +86,10 @@ for r = 0 : block_height_num - 1
         
        %% TODO: 比较公式待确定
         %统计两种方法的方向是否一致
-        transport_pimer_direction_index = -1;
-        if  (pimer_direction_index_gauss >= 1) && (pimer_direction_index_gauss <= 9)
-            transport_pimer_direction_index = pimer_direction_index_gauss + 9;
-        elseif (pimer_direction_index_gauss >= 10) && (pimer_direction_index_gauss <= 18)
-            transport_pimer_direction_index = pimer_direction_index_gauss - 9;
-        elseif (pimer_direction_index_gauss >= 19) && (pimer_direction_index_gauss <= 27)
-            transport_pimer_direction_index = pimer_direction_index_gauss - 9;
-        elseif (pimer_direction_index_gauss >= 28) && (pimer_direction_index_gauss <= 36)
-            transport_pimer_direction_index = pimer_direction_index_gauss - 27;
-        end
-        % index_max == (transport_pimer_direction_index)
-        if  ((EMax < 10) && (pimer_direction_index_gauss == -1)) || (index_max == transport_pimer_direction_index) 
-            same_direction_block_cnt = same_direction_block_cnt + 1;
-        elseif  -1 == transport_pimer_direction_index
-            smooothing_block_cnt = smooothing_block_cnt + 1;
-        elseif abs(index_max - transport_pimer_direction_index) == 1
-            nearly_direction_block_cnt = nearly_direction_block_cnt + 1;
-        elseif  abs(index_max - transport_pimer_direction_index) == 2
-            different_two_direction_cnt = different_two_direction_cnt + 1;
-        else
-            unsame_direction_block_cnt = unsame_direction_block_cnt + 1;
-            Different_block{r + 1, c + 1} = [index_max, pimer_direction_index_gauss];
+%         numberic_index = char(index_max) - '0';
+        [various_block_cnt, flag] = direction_consistency_compare(EMax, index_max, pimer_direction_index_gauss, various_block_cnt);
+        if flag == false
+          Different_block{r + 1, c + 1} = [index_max, pimer_direction_index_gauss];
         end
     end
 end
