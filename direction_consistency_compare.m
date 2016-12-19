@@ -1,21 +1,21 @@
-function [various_block_cnt_arr, flag] = direction_consistency_compare(EMax, wedge_shape_index, pimer_direction_index_gauss, various_block_cnt_arr)
-% 比较楔形滤波器计算出的块方向和sobel方法计算的块方向进行一致性比较，EMax 是楔形滤波器滤波得到的频谱能量，wedge_shape_index 是楔形滤波器滤波得到的主方向
+function [various_block_cnt_arr, flag] = direction_consistency_compare(L, EMax, wedge_shape_index, pimer_direction_index_gauss, various_block_cnt_arr)
+% 比较楔形滤波器计算出的块方向和sobel方法计算的块方向进行一致性比较，L 是 将180度平均分成L份，EMax 是楔形滤波器滤波得到的频谱能量，wedge_shape_index 是楔形滤波器滤波得到的主方向
 % pimer_direction_index_gauss 是sobel方法得到的主方向，various_block_cnt_arr 统计楔形滤波器和sobel两种方法得到的主方向相差各个角度的图像块数目，0~90度之内分别记录在第1到10行，最后一行记录平滑块的个数
 % flag 对两种方法得到的方向相差超过40度的块进行标记
-    direction_gap = abs((mod(pimer_direction_index_gauss, 19) + 1) - wedge_shape_index);
+    direction_gap = abs((mod(pimer_direction_index_gauss, L + 1) + 1) - wedge_shape_index);
     flag = true;
-    if  ((EMax < 10) && (pimer_direction_index_gauss == -1))
+    if  ((EMax < (L/2 + 1)) && (pimer_direction_index_gauss == -1))
         various_block_cnt_arr(1, 1) = various_block_cnt_arr(1, 1) + 1;
     elseif(-1 == pimer_direction_index_gauss)
-        various_block_cnt_arr(11, 1) = various_block_cnt_arr(11,1) + 1;
-    elseif direction_gap <= 9
+        various_block_cnt_arr((L/2 + 1 + 1), 1) = various_block_cnt_arr((L/2 + 1 + 1),1) + 1;
+    elseif direction_gap <= (L/2)
         various_block_cnt_arr(direction_gap + 1, 1) = various_block_cnt_arr(direction_gap + 1, 1) + 1;
-        if direction_gap > 4
+        if direction_gap > (L / 2)
             flag = false;
         end
     else
-        various_block_cnt_arr(18 - direction_gap + 1, 1) = various_block_cnt_arr(18 - direction_gap + 1, 1) + 1;
-        if 18 - direction_gap > 4
+        various_block_cnt_arr(L - direction_gap + 1, 1) = various_block_cnt_arr(L - direction_gap + 1, 1) + 1;
+        if L - direction_gap > (L / 2)
             flag = false;
         end
     end

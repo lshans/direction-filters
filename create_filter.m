@@ -23,6 +23,6 @@ H = freqz2(h3, N, M);
 for i = 0: L - 1
     H_rotate = imrotate(H, i * ones_rotate_angle ,'bicubic','crop');
     direction_filters(:, :, i + 1) = H_rotate;
-    figure(71), subplot(ceil(sqrt(L)), ceil(sqrt(L)), i + 1), imshow(H_rotate, []);title(['H_rotate', num2str(i)]);
+    figure(71), subplot(ceil(sqrt(L)), ceil(sqrt(L)), i + 1), imshow(H_rotate, []);title(['Hrotate', num2str(i)]);
 end
 end

@@ -2,6 +2,7 @@ function g = gauss_filter(I, parameter_of_D0)
 %% 对输入图像进行高通滤波，I 是待滤波的输入图像， g 是逆滤波后的图像, parameter_of_D0 是高通滤波系数D0的系数
 % 转换成浮点型
 [f, revertclass] = tofloat(I);
+% figure(61), subplot(2, 2, 1), imshow(f, []), title(['原始大图', sprintf('%d x %d', img_height, img_width)]);
 %% 1. 填充图的FFT，不偏移
 PQ = paddedsize(size(I));   % 获取填充参数  
 F_I = fft2(f, PQ(1), PQ(2)); 
